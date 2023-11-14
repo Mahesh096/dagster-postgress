@@ -11,17 +11,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set up Docker
+      uses: actions/setup-docker@v2
+
     - name: Install kubectl
       uses: azure/setup-kubectl@v2.0
       with:
         version: 'v1.24.0' # default is latest stable
-      id: install
-      
-    - name: Install Docker Compose
-      run: |
-         sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-         sudo chmod +x /usr/local/bin/docker-compose
-      
+      id: install 
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -40,6 +37,13 @@ jobs:
         REPOSITORY: healthelink-repo123
       run: |
         docker-compose build
+        docker-compose push
+
+    - name: Tag and Push Docker Images to ECR
+      run: |
+          docker tag your-image-name-1:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-1
+          docker tag your-image-name-2:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-2
+          docker tag your-image-name-3:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-3
         
  
       
