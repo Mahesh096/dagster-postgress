@@ -24,8 +24,6 @@ services:
     image: postgres:13.3
     ports:
       - 5432:5432
-    args:
-        - IMAGE_TAG=postgres
     environment:
       - POSTGRES_PASSWORD=postgre#s
     volumes:
