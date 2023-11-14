@@ -39,11 +39,7 @@ jobs:
         docker-compose build
         docker-compose push
 
-    - name: Tag and Push Docker Images to ECR
-      run: |
-          docker tag your-image-name-1:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-1
-          docker tag your-image-name-2:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-2
-          docker tag your-image-name-3:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/healthelink-repo123:tag-3
+
         
  
       
