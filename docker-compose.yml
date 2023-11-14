@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - IMAGE_TAG=dagit
     ports:
       - 3000:3000
 
@@ -11,6 +13,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - IMAGE_TAG=daemon
     command: "dagster-daemon run"
     environment:
       - PGPASS=postgre#s
@@ -20,6 +24,8 @@ services:
     image: postgres:13.3
     ports:
       - 5432:5432
+    args:
+        - IMAGE_TAG=postgres
     environment:
       - POSTGRES_PASSWORD=postgre#s
     volumes:
