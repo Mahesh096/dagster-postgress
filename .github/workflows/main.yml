@@ -47,7 +47,13 @@ jobs:
 
     - name: git clone
       run: |
-        git clone https://github.com/awslabs/data-on-eks.git 
+        git clone https://github.com/awslabs/data-on-eks.git
+
+    - name: install.sh
+      run: |
+        cd data-on-eks/analytics/terraform/datahub-on-eks
+        chmod +x install.sh
+        ./install.sh
 
 
 
