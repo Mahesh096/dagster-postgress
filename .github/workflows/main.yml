@@ -1,63 +1,57 @@
+name: Terraform Deployment
+
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - master
 
 jobs:
-  deploy:
+  check_terraform_installed:
     runs-on: ubuntu-latest
+
+    steps:
+    - name: Check Terraform installation
+      id: check_terraform
+      run: |
+        if command -v terraform &> /dev/null; then
+          echo "::set-output name=installed::true"
+        else
+          echo "::set-output name=installed::false"
+        fi
+
+  terraform_deploy:
+    needs: check_terraform_installed
+    runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v2.0
-      with:
-        version: 'v1.24.0' # default is latest stable
-      id: install 
-
-    - name: Install Docker Compose
-      run: |
-          sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
-    - name: Configure AWS Credentials
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push docker image to Amazon ECR
-      env:
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: healthelink-repo123
-        IMAGE_TAG: postgress-1
+    - name: Set Terraform variables
       run: |
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-        
-    - name: Update kube config
-      run: aws eks update-kubeconfig --name HL7-dev-eks
+        echo "aws_region=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+        echo "aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+        echo "aws_secret_key=${{ secrets.AWS_SECRET_KEY }}" >> $GITHUB_ENV
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      if: needs.check_terraform_installed.outputs.installed == 'false'
+      with:
+        terraform_version: ${{ secrets.TERRAFORM_VERSION }}
 
     - name: git clone
-      run: |
-        git clone https://github.com/awslabs/data-on-eks.git
+      run: git clone https://github.com/awslabs/data-on-eks.git
 
     - name: install.sh
-      run: |
-        cd data-on-eks/analytics/terraform/datahub-on-eks
-        chmod +x install.sh
-        ./install.sh
+      run: cd data-on-eks/analytics/terraform/datahub-on-eks
+           chmod +x install.sh
+           ./install.sh
 
-
-
-
-        
- 
-      
+    
