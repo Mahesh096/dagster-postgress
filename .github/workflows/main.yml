@@ -45,14 +45,10 @@ jobs:
     - name: Update kube config
       run: aws eks update-kubeconfig --name HL7-dev-eks
 
-    - name: Install Docker Compose
+    - name: git clone
       run: |
-         sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-         sudo chmod +x /usr/local/bin/docker-compose
+        git clone https://github.com/awslabs/data-on-eks.git 
 
-    - name: Deploy Docker Compose file
-      run: |
-          docker-compose up -d
 
 
 
